@@ -88,6 +88,16 @@ class ArticleDB:
             ).fetchall()
             return [self._from_row(row) for row in rows]
 
+    def get_by_url(self, url: str) -> Article | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM articles WHERE url = ?", (url,)
+            ).fetchone()
+            if row:
+                return self._from_row(row)
+            else:
+                return None
+
     def get_latest_scrape_by_source(self, source: str) -> datetime.datetime | None:
 
         with self._connect() as conn:
@@ -129,7 +139,7 @@ class ArticleDB:
     def _from_row(row: sqlite3.Row) -> Article:
         return Article(
             title=row["title"],
-            source=Source(row["source"]),
+            source=row["source"],
             url=row["url"],
             published_on=datetime.datetime.fromisoformat(row["published_on"]),
             scraped_on=datetime.datetime.fromisoformat(row["scraped_on"]),

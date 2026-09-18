@@ -23,6 +23,14 @@ def main() -> int:
 
         # Save articles to the database
         for article in articles:
+            # Check that the URL is not already in the DB
+            existing_article = db.get_by_url(article.url)
+            if existing_article:
+                print(
+                    f"Article already exists in the database: {article.title} ({article.url}), added by source {article.source}"
+                )
+                continue
+
             db.save(article)
 
     # Update the database (or time of last scrape??)
