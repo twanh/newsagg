@@ -1,11 +1,17 @@
+import os
 from src.models.db import ArticleDB
 
 from src.scraper.registry import SOURCE_SCRAPERS
+from src.agents.agents.summarize_agent import summarize_articles
+
+from dotenv import load_dotenv
 
 
 def main() -> int:
 
     print("Welcome to newsagg!")
+
+    load_dotenv()
 
     # Create a database connection
     db = ArticleDB("articles.db")
@@ -33,19 +39,38 @@ def main() -> int:
 
             db.save(article)
 
-    # Update the database (or time of last scrape??)
+    # Summarize articles that don't have a summary yet
 
-    # Run through all the sources and scapre the source
+    unsummarized = db.get_without_summary()
+    if unsummarized:
+        print(f"Summarizing {len(unsummarized)} articles...")
+        summaries = summarize_articles(unsummarized)
+        for article, article_summary in zip(unsummarized, summaries, strict=True):
+            db.update_summary(
+                article.url,
+                article_summary.summary,
+                article_summary.topic,
+                article_summary.key_points,
+            )
 
-    # Update entries in the database
+            print("Updated article summary in the database:")
+            print(f"Title: {article.title}")
+            print(f"URL: {article.url}")
+            print(f"Summary: {article_summary.summary}")
+    else:
+        print("No articles to summarize.")
 
-    # Agents do the following:
-    # Classify news item type
-    # Rank importance
-    # Rank relevance
-    # Create sumaries
+    # Give a news overview
+    print("Generating news overview...")
+    overview = db.get_all()
 
-    # Rank all the news articles
+    for article in overview:
+        print(f"Title: {article.title}")
+        print(f"URL: {article.url}")
+        print(f"Summary: {article.summary}")
+        print(f"Topic: {article.topic}")
+        print(f"Key Points: {article.key_points}")
+        print("-" * 40)
 
     return 0
 

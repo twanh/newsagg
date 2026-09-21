@@ -35,7 +35,9 @@ class ArticleDB:
                     text TEXT NOT NULL,
                     raw_tags TEXT NOT NULL,
                     authors TEXT NOT NULL,
-                    summary TEXT
+                    summary TEXT,
+                    topic TEXT,
+                    key_points TEXT
                 )
             """)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_source ON articles(source)")
@@ -54,9 +56,11 @@ class ArticleDB:
             conn.execute(
                 """
                 INSERT INTO articles (url, title, source, published_on, scraped_on,
-                                       text, raw_tags, authors, summary)
+                                       text, raw_tags, authors, summary,
+                                       topic, key_points)
                 VALUES (:url, :title, :source, :published_on, :scraped_on,
-                        :text, :raw_tags, :authors, :summary);
+                        :text, :raw_tags, :authors, :summary,
+                        :topic, :key_points);
             """,
                 self._to_row(article),
             )
@@ -66,17 +70,44 @@ class ArticleDB:
             conn.executemany(
                 """
                 INSERT INTO articles (url, title, source, published_on, scraped_on,
-                                       text, raw_tags, authors, summary)
+                                       text, raw_tags, authors, summary,
+                                       topic, key_points)
                 VALUES (:url, :title, :source, :published_on, :scraped_on,
-                        :text, :raw_tags, :authors, :summary);
+                        :text, :raw_tags, :authors, :summary,
+                        :topic, :key_points);
             """,
                 [self._to_row(a) for a in articles],
+            )
+
+    def update_summary(
+        self, url: str, summary: str, topic: Tag, key_points: list[str]
+    ):
+        with self._connect() as conn:
+            conn.execute(
+                """
+                UPDATE articles
+                SET summary = :summary, topic = :topic, key_points = :key_points
+                WHERE url = :url;
+            """,
+                {
+                    "url": url,
+                    "summary": summary,
+                    "topic": topic.value,
+                    "key_points": json.dumps(key_points),
+                },
             )
 
     def get_all(self) -> list[Article]:
         with self._connect() as conn:
             rows = conn.execute(
                 "SELECT * FROM articles ORDER BY published_on DESC"
+            ).fetchall()
+            return [self._from_row(row) for row in rows]
+
+    def get_without_summary(self) -> list[Article]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM articles WHERE summary IS NULL ORDER BY published_on DESC"
             ).fetchall()
             return [self._from_row(row) for row in rows]
 
@@ -133,6 +164,8 @@ class ArticleDB:
             "raw_tags": json.dumps([t.value for t in article.raw_tags]),
             "authors": json.dumps(article.authors),
             "summary": article.summary,
+            "topic": article.topic.value if article.topic else None,
+            "key_points": json.dumps(article.key_points),
         }
 
     @staticmethod
@@ -147,4 +180,6 @@ class ArticleDB:
             raw_tags=[Tag(t) for t in json.loads(row["raw_tags"])],
             authors=json.loads(row["authors"]),
             summary=row["summary"],
+            topic=Tag(row["topic"]) if row["topic"] else None,
+            key_points=json.loads(row["key_points"]) if row["key_points"] else [],
         )

@@ -43,4 +43,6 @@ class Article:
     # Names of the authors
     authors: list[str] = field(default_factory=list)
     summary: str | None = None
+    topic: Tag | None = None
+    key_points: list[str] = field(default_factory=list)
     rank: RelevanceRank | None = None
