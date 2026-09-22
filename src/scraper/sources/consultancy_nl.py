@@ -1,4 +1,5 @@
 import datetime
+import logging
 import re
 
 import httpx
@@ -7,7 +8,9 @@ from rss_parser import UnknownFeedTypeError, parse
 from src.models.schema import Article
 from src.scraper.registry import source
 
-print("Consultancy.nl scraper module loaded.")
+logger = logging.getLogger(__name__)
+
+logger.debug("Consultancy.nl scraper module loaded.")
 
 _DUTCH_MONTHS = {
     "jan": 1,
@@ -87,12 +90,12 @@ def scrape_consultancy_nl(
             articles.append(article)
 
     except httpx.RequestError as e:
-        print(f"Error scraping {name}: {e}")
+        logger.error("Error scraping %s: %s", name, e)
 
     except UnknownFeedTypeError as e:
-        print(f"Error parsing feed for {name}: {e}")
+        logger.error("Error parsing feed for %s: %s", name, e)
 
     except (ValueError, KeyError, IndexError) as e:
-        print(f"Error parsing feed entries for {name}: {e}")
+        logger.error("Error parsing feed entries for %s: %s", name, e)
 
     return articles

@@ -111,6 +111,28 @@ class ArticleDB:
             ).fetchall()
             return [self._from_row(row) for row in rows]
 
+    def get_recent(
+        self,
+        limit: int = 50,
+        topic: Tag | None = None,
+        source: str | None = None,
+    ) -> list[Article]:
+        query = "SELECT * FROM articles"
+        clauses, params = [], []
+        if topic:
+            clauses.append("topic = ?")
+            params.append(topic.value)
+        if source:
+            clauses.append("source = ?")
+            params.append(source)
+        if clauses:
+            query += " WHERE " + " AND ".join(clauses)
+        query += " ORDER BY published_on DESC LIMIT ?"
+        params.append(limit)
+        with self._connect() as conn:
+            rows = conn.execute(query, params).fetchall()
+            return [self._from_row(row) for row in rows]
+
     def get_by_source(self, source: str) -> list[Article]:
         with self._connect() as conn:
             rows = conn.execute(

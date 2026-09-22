@@ -1,0 +1,124 @@
+Screen {
+    background: $background;
+    color: $foreground;
+}
+
+#topbar {
+    height: 1;
+    background: $accent;
+    color: $panel;
+}
+
+#brand {
+    padding: 0 2;
+    text-style: bold;
+}
+
+#digitbuf {
+    width: 1fr;
+    text-align: center;
+    text-style: bold;
+}
+
+#clock {
+    padding: 0 2;
+}
+
+#pagetitle {
+    height: 1;
+    padding: 0 2;
+    background: $surface;
+    color: $accent;
+    text-style: bold;
+}
+
+#headlines {
+    height: 1fr;
+    background: $background;
+    padding: 0 1;
+}
+
+#headlines > .datatable--cursor {
+    background: #2D2F41;
+    color: $foreground;
+}
+
+#headlines > .datatable--hover {
+    background: $background;
+}
+
+#headlines > .datatable--header {
+    color: $muted;
+    text-style: bold;
+}
+
+#page-index {
+    width: 60%;
+    height: auto;
+    max-height: 80%;
+    border: round $accent;
+    background: $panel;
+}
+
+PageIndexScreen {
+    align-horizontal: center;
+    align-vertical: middle;
+}
+
+#page-index > .datatable--cursor {
+    background: #2D2F41;
+}
+
+#footer-info {
+    height: 1;
+    padding: 0 2;
+    background: $panel;
+    color: $muted;
+}
+
+ArticleScreen {
+    background: $background;
+}
+
+#article-body {
+    width: 100%;
+    height: 100%;
+    padding: 1 2;
+}
+
+#article-title {
+    width: 100%;
+    text-style: bold;
+    color: $accent;
+}
+
+#article-meta {
+    width: 100%;
+    color: $muted;
+    margin-bottom: 1;
+}
+
+#article-summary {
+    width: 75%;
+    margin-bottom: 1;
+    color: $secondary;
+    border: heavy $muted;
+}
+
+#article-keys {
+    width: 100%;
+    margin-bottom: 1;
+    color: $success;
+}
+
+.article-heading {
+    color: $secondary;
+    text-style: bold;
+    margin-top: 1;
+}
+
+.article-para {
+    width: 100%;
+    color: $foreground;
+    margin-bottom: 1;
+}

@@ -1,13 +1,15 @@
 import datetime
+import logging
 
 import httpx
-from rss_parser import parse
-from rss_parser import UnknownFeedTypeError
+from rss_parser import UnknownFeedTypeError, parse
 
 from src.models.schema import Article
 from src.scraper.registry import source
 
-print("NOS scraper module loaded.")
+logger = logging.getLogger(__name__)
+
+logger.debug("NOS scraper module loaded.")
 
 
 @source("nos_algemeen", "https://feeds.nos.nl/nosnieuwsalgemeen")
@@ -51,9 +53,9 @@ def _generic_nos_scraper(
             articles.append(article)
 
     except httpx.RequestError as e:
-        print(f"Error scraping {name}: {e}")
+        logger.error("Error scraping %s: %s", name, e)
 
     except UnknownFeedTypeError as e:
-        print(f"Error parsing feed for {name}: {e}")
+        logger.error("Error parsing feed for %s: %s", name, e)
 
     return articles
